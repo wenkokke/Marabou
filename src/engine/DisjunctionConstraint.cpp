@@ -193,8 +193,80 @@ bool DisjunctionConstraint::constraintObsolete() const
     return _feasibleDisjuncts.empty();
 }
 
-void DisjunctionConstraint::getEntailedTightenings( List<Tightening> &/* tightenings */ ) const
+void DisjunctionConstraint::getEntailedTightenings( List<Tightening> &tightenings ) const
 {
+    // Assume that the constraint is monotonic, and that the disjuncts
+    // are ordered in ascending order
+
+    /*
+      Eq format: f - coef * b = scalar
+      or
+      f = coef * b + scalar
+    */
+
+    unsigned f = _disjuncts.begin()->getEquations().begin()->_addends.begin()->_variable;
+    unsigned b = _disjuncts.begin()->getEquations().begin()->_addends.rbegin()->_variable;
+
+    // UB
+    auto ubIterator = _disjuncts.begin();
+    // auto ubDisjunct = ubIterator;
+
+    // Find the larger interval b can still belong to
+    printf( "1\n" );
+    printf( "Current b.ub: %.5lf\n", _upperBounds[b] );
+    while ( ( ubIterator->getBoundTightenings().rbegin()->_value <= _upperBounds[b] ) &&
+            ( ubIterator->getBoundTightenings().rbegin()->_type == Tightening::UB ) )
+    {
+        printf( "\t2\n" );
+
+        ubIterator->dump();
+
+        // ubDisjunct = ubIterator;
+        ++ubIterator;
+
+    }
+    printf( "\t3\n" );
+
+    //    Equation ubEq = *ubDisjunct->getEquations().begin();
+    Equation ubEq = *ubIterator->getEquations().begin();
+
+    // f <= coef * b.ub + scalar
+    double coef = -ubEq._addends.rbegin()->_coefficient;
+    double scalar = ubEq._scalar;
+    Tightening ub( f, coef * _upperBounds[b] + scalar, Tightening::UB );
+    tightenings.append( ub );
+
+    if ( coef < 0 )
+    {
+        printf( "Error! Negative coeffieicnt, unexpected!\n" );
+        exit( 1 );
+    }
+
+    // LB
+    auto lbIterator = _disjuncts.rbegin();
+    // auto lbDisjunct = lbIterator;
+
+    // Find the smallest interval b can still belong to
+    while ( ( lbIterator->getBoundTightenings().begin()->_value >= _lowerBounds[b] ) &&
+            ( lbIterator->getBoundTightenings().begin()->_type == Tightening::LB ) )
+    {
+        // lbDisjunct = lbIterator;
+        ++lbIterator;
+    }
+
+    Equation lbEq = *lbIterator->getEquations().begin();
+
+    // f <= coef * b.lb + scalar
+    coef = -lbEq._addends.rbegin()->_coefficient;
+    scalar = lbEq._scalar;
+    Tightening lb( f, coef * _lowerBounds[b] + scalar, Tightening::LB );
+    tightenings.append( lb );
+
+    if ( coef < 0 )
+    {
+        printf( "Error! Negative coeffieicnt, unexpected!\n" );
+        exit( 1 );
+    }
 }
 
 void DisjunctionConstraint::addAuxiliaryEquations( InputQuery &/* inputQuery */ )

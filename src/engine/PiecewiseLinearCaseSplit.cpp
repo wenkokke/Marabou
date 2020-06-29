@@ -39,7 +39,8 @@ const List<Equation> & PiecewiseLinearCaseSplit::getEquations() const
 
 void PiecewiseLinearCaseSplit::dump( String &output ) const
 {
-    output = String( "\nDumping piecewise linear case split\n" );
+    output = Stringf( "\nDumping piecewise linear case split (%u bounds, %u equations)\n",
+                     _bounds.size(), _equations.size() );
     output += String( "\tBounds are:\n" );
     for ( const auto &bound : _bounds )
     {
@@ -50,8 +51,9 @@ void PiecewiseLinearCaseSplit::dump( String &output ) const
     output += String( "\n\tEquations are:\n" );
     for ( const auto &equation : _equations )
     {
-        output += String( "\t\t" );
-        equation.dump();
+        String eqDump;
+        equation.dump( eqDump );
+        output += String( "\t\t" ) + eqDump;
     }
 }
 

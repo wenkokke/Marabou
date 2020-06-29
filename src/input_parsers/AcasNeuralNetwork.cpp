@@ -15,6 +15,7 @@
 
 #include "AcasNeuralNetwork.h"
 #include "AcasNnet.h"
+#include "DisjunctionConstraint.h"
 #include "FloatUtils.h"
 #include "Vector.h"
 
@@ -103,6 +104,68 @@ void AcasNeuralNetwork::getInputRange( unsigned index, double &min, double &max 
     min =
         ( _network->mins[index] - _network->means[index] )
         / ( _network->ranges[index] );
+}
+
+PiecewiseLinearConstraint *AcasNeuralNetwork::getActivationFunction( int layer,
+                                                                     int neuron,
+                                                                     unsigned b,
+                                                                     unsigned f )
+{
+    NLR::NeuronIndex index( layer - 1, neuron );
+
+    if ( !_network->_activationInformation.exists( index ) )
+    {
+        printf( "Error! Activation function doesn't exist for <%u,%u>\n", layer, neuron );
+        exit( 1 );
+    }
+
+    List<String> tokens = _network->_activationInformation[index].tokenize( "," );
+
+    if ( tokens.size() % 4 != 0 )
+    {
+        printf( "Error! Malformed activation function string: %s\n",
+                _network->_activationInformation[index].ascii() );
+        exit( 1 );
+    }
+
+    List<PiecewiseLinearCaseSplit> splits;
+    unsigned count = 0;
+    auto it = tokens.begin();
+    while ( count < tokens.size() )
+    {
+        count += 4;
+
+        String lbString = *it++;
+        String ubString = *it++;
+        String coefficient = *it++;
+        String scalar = *it++;
+
+        PiecewiseLinearCaseSplit split;
+
+        if ( lbString != "-infty" )
+        {
+            Tightening lb( b, atof( lbString.ascii() ), Tightening::LB );
+            split.storeBoundTightening( lb );
+        }
+
+        if ( ubString != "infty" )
+        {
+            Tightening ub( b, atof( ubString.ascii() ), Tightening::UB );
+            split.storeBoundTightening( ub );
+        }
+
+        Equation eq;
+        // Text format: f = coef * b + scalar
+        // Eq format: f - coef * b = scalar
+        eq.addAddend( 1, f );
+        eq.addAddend( -atof( coefficient.ascii() ), b );
+        eq.setScalar( atof( scalar.ascii() ) );
+        split.addEquation( eq );
+
+        splits.append( split );
+    }
+
+    return new DisjunctionConstraint( splits );
 }
 
 //
