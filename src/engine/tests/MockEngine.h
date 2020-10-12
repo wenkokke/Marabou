@@ -190,6 +190,13 @@ public:
         else
             return NULL;
     }
+
+    List<PiecewiseLinearConstraint *> _plConstraints;
+    const List<PiecewiseLinearConstraint *> & getPiecewiseLinearConstraints()
+    {
+        return _plConstraints;
+    }
+
 };
 
 #endif // __MockEngine_h__

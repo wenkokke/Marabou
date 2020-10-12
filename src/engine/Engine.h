@@ -156,6 +156,8 @@ public:
     */
     PiecewiseLinearConstraint *pickSplitPLConstraintSnC( SnCDivideStrategy strategy );
 
+    const List<PiecewiseLinearConstraint *> &getPiecewiseLinearConstraints();
+
     /*
       PSA: The following two methods are for DnC only and should be used very
       cautiously.
@@ -507,6 +509,10 @@ private:
     */
     PiecewiseLinearConstraint *pickSplitPLConstraintBasedOnIntervalWidth();
 
+    /*
+      Pick the input variable with the largest score
+    */
+    PiecewiseLinearConstraint *pickSplitPLConstraintBasedOnInfluence();
 };
 
 #endif // __Engine_h__

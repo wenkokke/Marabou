@@ -96,6 +96,11 @@ public:
     virtual PiecewiseLinearConstraint *pickSplitPLConstraintSnC( SnCDivideStrategy
                                                                  strategy ) = 0;
 
+    /*
+      Return the list of PLConstraints
+    */
+    virtual const  List<PiecewiseLinearConstraint *> &getPiecewiseLinearConstraints() = 0;
+
 };
 
 #endif // __IEngine_h__
