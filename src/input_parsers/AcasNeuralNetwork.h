@@ -23,6 +23,8 @@
 #include <iomanip>
 #include <sstream>
 
+#include "PiecewiseLinearConstraint.h"
+
 class AcasNeuralNetwork
 {
 public:
@@ -53,6 +55,11 @@ public:
     */
     double getBias( int layer, int neuron );
     String getBiasAsString( int layer, int neuron );
+
+    /*
+      Returns the activation function of a given neuron
+    */
+    PiecewiseLinearConstraint *getActivationFunction( int layer, int neuron, unsigned b, unsigned f );
 
     /*
       Evaluate the network for a given vector of inputs.

@@ -16,6 +16,10 @@
 #ifndef __AcasNnet_h__
 #define __AcasNnet_h__
 
+#include "MString.h"
+#include "Map.h"
+#include "NeuronIndex.h"
+
 //Neural Network Struct
 class AcasNnet {
 public:
@@ -34,6 +38,8 @@ public:
                        //the neural network.
     double *inputs;    //Scratch array for inputs to the different layers
     double *temp;      //Scratch array for outputs of different layers
+
+    Map<NLR::NeuronIndex, String> _activationInformation;
 };
 
 //Functions Implemented

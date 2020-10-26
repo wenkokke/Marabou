@@ -456,12 +456,12 @@ void InputQuery::printAllBounds() const
     for ( unsigned i = 0; i < _numberOfVariables; ++i )
     {
         printf( "\tx%u: [", i );
-        if ( _lowerBounds.exists( i ) )
+        if ( _lowerBounds.exists( i ) && _lowerBounds[i] != FloatUtils::negativeInfinity() )
             printf( "%lf, ", _lowerBounds[i] );
         else
             printf( "-INF, " );
 
-        if ( _upperBounds.exists( i ) )
+        if ( _upperBounds.exists( i ) && _upperBounds[i] != FloatUtils::infinity() )
             printf( "%lf]", _upperBounds[i] );
         else
             printf( "+INF]" );

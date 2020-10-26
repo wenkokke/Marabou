@@ -138,23 +138,30 @@ AcasNnet *load_network(const char* filename)
     {
         if(i>=nnet->layerSizes[layer+1])
         {
-            if (param==0)
-            {
-                param = 1;
-            }
-            else
+            ++param;
+            if ( param == 3 ) //|| ( param == 1 && layer == nnet->numLayers - 1 ) )
             {
                 param = 0;
-                layer++;
+                ++layer;
             }
+
             i=0;
             j=0;
         }
-        record = strtok(line,",\n");
-        while(record != NULL)
+
+        if ( param == 2 )
         {
-            nnet->matrix[layer][param][i][j++] = atof(record);
-            record = strtok(NULL,",\n");
+            nnet->_activationInformation[NLR::NeuronIndex( layer, i )] = line;
+        }
+        else
+        {
+            record = strtok(line,",\n");
+            while(record != NULL)
+            {
+                nnet->matrix[layer][param][i][j++] = atof(record);
+                record = strtok(NULL,",\n");
+            }
+
         }
         j=0;
         i++;

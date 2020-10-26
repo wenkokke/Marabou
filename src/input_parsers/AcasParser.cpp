@@ -104,7 +104,7 @@ void AcasParser::generateQuery( InputQuery &inputQuery )
         // Be careful not to override the bounds for the input layer
         if ( fNode.first._layer != 0 )
         {
-            inputQuery.setLowerBound( fNode.second, 0.0 );
+            inputQuery.setLowerBound( fNode.second, FloatUtils::negativeInfinity() );
             inputQuery.setUpperBound( fNode.second, FloatUtils::infinity() );
         }
     }
@@ -153,9 +153,9 @@ void AcasParser::generateQuery( InputQuery &inputQuery )
         {
             unsigned b = _nodeToB[NodeIndex(i, j)];
             unsigned f = _nodeToF[NodeIndex(i, j)];
-            PiecewiseLinearConstraint *relu = new ReluConstraint( b, f );
 
-            inputQuery.addPiecewiseLinearConstraint( relu );
+            PiecewiseLinearConstraint *disjunction = _acasNeuralNetwork.getActivationFunction( i, j, b, f );
+            inputQuery.addPiecewiseLinearConstraint( disjunction );
         }
     }
 
